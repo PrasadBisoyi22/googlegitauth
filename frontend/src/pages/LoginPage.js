@@ -82,9 +82,11 @@ const LoginPage = () => {
       );
 
       if (response.data.success) {
-        // Store user data in localStorage for immediate access
+        // Store user data and isLoggedIn flag in localStorage for immediate access
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        // Token is stored in HTTP-only cookie by the server
+        localStorage.setItem('isLoggedIn', 'true');
+        // Also store token in localStorage to match OAuth login behavior
+        localStorage.setItem('accessToken', response.data.token);
         navigate('/dashboard');
       }
     } catch (error) {

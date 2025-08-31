@@ -35,8 +35,22 @@ class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
-      // Redirect to dashboard without exposing token in URL
-      res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+      // Set default avatar if not present
+      if (!req.user.avatar) {
+        req.user.avatar = 'https://via.placeholder.com/150';
+      }
+
+      // Redirect to login page with token and user data in URL params
+      const userData = {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        avatar: req.user.avatar,
+        username: req.user.username,
+        role: req.user.role,
+        authProvider: req.user.authProvider
+      };
+      res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`);
     } catch (error) {
       console.error("OAuth callback error:", error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=server_error`);
@@ -175,6 +189,11 @@ class AuthController {
         { expiresIn: "7d" }
       );
 
+      // Set default avatar if not present
+      if (!user.avatar) {
+        user.avatar = 'https://via.placeholder.com/150';
+      }
+
       // Set token as HTTP-only cookie
       res.cookie('accessToken', token, {
         httpOnly: true,
@@ -243,6 +262,11 @@ class AuthController {
         { expiresIn: "7d" }
       );
 
+      // Set default avatar if not present
+      if (!user.avatar) {
+        user.avatar = 'https://via.placeholder.com/150';
+      }
+
       // Set token as HTTP-only cookie
       res.cookie('accessToken', token, {
         httpOnly: true,
@@ -254,6 +278,7 @@ class AuthController {
       res.json({
         success: true,
         message: "Login successful",
+        token: token,
         user: {
           id: user.id,
           name: user.name,

@@ -2,11 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
+const cookieParser = require('cookie-parser');
 const { testConnection } = require('./src/config/database');
 const { initDatabase } = require('./src/config/initDatabase');
 
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
+const forgotPasswordRoutes = require('./src/routes/forgotPasswordRoutes');
 
 // Import passport config
 require('./src/config/passport');
@@ -20,10 +22,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', forgotPasswordRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -46,10 +50,10 @@ async function startServer() {
   try {
     // Test database connection
     await testConnection();
-    
+
     // Initialize database tables
     await initDatabase();
-    
+
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

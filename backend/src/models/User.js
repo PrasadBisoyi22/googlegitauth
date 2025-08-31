@@ -10,7 +10,7 @@ class User {
   async findByEmail(email) {
     try {
       const [rows] = await this.pool.execute(
-        'SELECT u.*, ua.authProvider, ua.providerId FROM users u LEFT JOIN user_auth ua ON u.id = ua.userId WHERE u.email = ?',
+        'SELECT u.*, ua.authProvider, ua.providerId, ua.passwordHash FROM users u LEFT JOIN user_auth ua ON u.id = ua.userId WHERE u.email = ?',
         [email]
       );
       return rows[0] || null;
@@ -57,13 +57,13 @@ class User {
     }
   }
 
-  // Create or update user (for OAuth)
+  // Create or update user (for OAuth and email/password)
   async createOrUpdate(userData) {
     const connection = await this.pool.getConnection();
     try {
       await connection.beginTransaction();
 
-      const { email, name, avatar, provider, providerId, username } = userData;
+      const { email, name, avatar, provider, providerId, username, passwordHash } = userData;
       
       // Check if user exists with this email
       const [existingUsers] = await connection.execute(
@@ -114,8 +114,14 @@ class User {
 
       if (existingAuth.length === 0) {
         await connection.execute(
-          'INSERT INTO user_auth (userId, authProvider, providerId, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
-          [userId, provider, providerId]
+          'INSERT INTO user_auth (userId, authProvider, providerId, passwordHash, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+          [userId, provider, providerId || null, passwordHash || null]
+        );
+      } else if (passwordHash) {
+        // Update password hash if provided
+        await connection.execute(
+          'UPDATE user_auth SET passwordHash = ?, updatedAt = NOW() WHERE userId = ? AND authProvider = ?',
+          [passwordHash, userId, provider]
         );
       }
 
@@ -136,7 +142,7 @@ class User {
       
       // Return the complete user data
       const [userRows] = await connection.execute(
-        'SELECT u.*, ua.authProvider, ua.providerId FROM users u LEFT JOIN user_auth ua ON u.id = ua.userId WHERE u.id = ?',
+        'SELECT u.*, ua.authProvider, ua.providerId, ua.passwordHash FROM users u LEFT JOIN user_auth ua ON u.id = ua.userId WHERE u.id = ?',
         [userId]
       );
       

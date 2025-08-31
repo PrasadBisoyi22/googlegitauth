@@ -76,14 +76,15 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/auth/google/callback',
+        'http://localhost:5000/api/auth/login',
         { email, password },
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        localStorage.setItem('accessToken', response.data.token);
+        // Store user data in localStorage for immediate access
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Token is stored in HTTP-only cookie by the server
         navigate('/dashboard');
       }
     } catch (error) {
@@ -268,8 +269,16 @@ const LoginPage = () => {
         </form>
         
         <p style={{marginTop: '20px', color: '#666'}}>
+          <span
+            style={{color: '#667eea', cursor: 'pointer', textDecoration: 'underline'}}
+            onClick={() => navigate('/forgot-password')}
+          >
+            Forgot password?
+          </span>
+        </p>
+        <p style={{marginTop: '10px', color: '#666'}}>
           Don't have an account?{' '}
-          <span 
+          <span
             style={{color: '#667eea', cursor: 'pointer', textDecoration: 'underline'}}
             onClick={() => navigate('/signup')}
           >

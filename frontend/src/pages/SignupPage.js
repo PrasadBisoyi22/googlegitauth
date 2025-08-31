@@ -42,14 +42,13 @@ const SignupPage = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/google-auth/login',
-        { email, password },
+        'http://localhost:5000/api/auth/register',
+        { name, email, password },
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        localStorage.setItem('accessToken', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Token is now stored in HTTP-only cookie, no need for localStorage
         navigate('/dashboard');
       }
     } catch (error) {

@@ -35,6 +35,13 @@ router.get(
   AuthController.handleOAuthCallback
 );
 
+// Email/Password Authentication Routes
+router.post("/register", AuthController.register);
+router.post("/login", AuthController.login);
+
+// Verify session (check if user has valid cookie)
+router.get("/verify-session", AuthController.verifySession);
+
 // Protected Routes
 router.get("/me", authMiddleware, AuthController.getCurrentUser);
 router.put("/profile", authMiddleware, AuthController.updateProfile);

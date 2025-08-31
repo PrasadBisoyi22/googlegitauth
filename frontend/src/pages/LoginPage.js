@@ -30,6 +30,7 @@ const LoginPage = () => {
       // Store token and user data in localStorage
       localStorage.setItem('accessToken', tokenFromUrl);
       localStorage.setItem('user', decodeURIComponent(userFromUrl));
+      localStorage.setItem('isLoggedIn', 'true');
       
       // Immediately redirect to dashboard
       navigate('/dashboard');
@@ -55,6 +56,7 @@ const LoginPage = () => {
       if (response.data.success) {
         localStorage.setItem('accessToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('isLoggedIn', 'true');
         navigate('/dashboard');
       }
     } catch (error) {

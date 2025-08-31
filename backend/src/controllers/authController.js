@@ -35,9 +35,9 @@ class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
-      // Set default avatar if not present
-      if (!req.user.avatar) {
-        req.user.avatar = 'https://via.placeholder.com/150';
+      // Set default avatar if not present or empty
+      if (!req.user.avatar || req.user.avatar === '') {
+        req.user.avatar = 'https://via.placeholder.com/150/cccccc/000000?text=User';
       }
 
       // Redirect to login page with token and user data in URL params
@@ -189,9 +189,9 @@ class AuthController {
         { expiresIn: "7d" }
       );
 
-      // Set default avatar if not present
-      if (!user.avatar) {
-        user.avatar = 'https://via.placeholder.com/150';
+      // Set default avatar if not present or empty
+      if (!user.avatar || user.avatar === '') {
+        user.avatar = 'https://via.placeholder.com/150/cccccc/000000?text=User';
       }
 
       // Set token as HTTP-only cookie
@@ -262,9 +262,9 @@ class AuthController {
         { expiresIn: "7d" }
       );
 
-      // Set default avatar if not present
-      if (!user.avatar) {
-        user.avatar = 'https://via.placeholder.com/150';
+      // Set default avatar if not present or empty
+      if (!user.avatar || user.avatar === '') {
+        user.avatar = 'https://via.placeholder.com/150/cccccc/000000?text=User';
       }
 
       // Set token as HTTP-only cookie
@@ -324,6 +324,26 @@ class AuthController {
     } catch (error) {
       console.error("Verify session error:", error);
       res.json({ authenticated: false });
+    }
+  }
+
+  // Logout user
+  static async logout(req, res) {
+    try {
+      // Clear the HTTP-only cookie
+      res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+
+      res.json({
+        success: true,
+        message: "Logged out successfully"
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 

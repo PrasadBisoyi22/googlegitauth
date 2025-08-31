@@ -57,10 +57,28 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint to clear HTTP-only cookie
+      await axios.post('http://localhost:5000/api/auth/logout', {}, {
+        withCredentials: true
+      });
+
+      // Clear localStorage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+
+      // Navigate to login
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if backend logout fails, clear localStorage and redirect
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      navigate('/login');
+    }
   };
 
   if (loading) {
